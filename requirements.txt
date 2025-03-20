@@ -1,0 +1,5 @@
+# Reemplazar con dependencias reales, por ejemplo:
+# numpy
+# pandas
+# torch
+# ...
