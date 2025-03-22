@@ -65,11 +65,11 @@ the preprocess.py script expects MIDI files to be located inside subfolders, one
 We can organize them automatically with the following command:
 
     ```bash
-    mkdir -p ./data/midi_files/WjazzD/organized
-    for f in ./data/midi_files/WjazzD/*.mid; do
+    mkdir -p ./data/midi_files/WjazzD_C_Am/organized
+    for f in ./data/midi_files/WjazzD_C_Am/*.mid; do
         name=$(basename "$f" .mid)
-        mkdir "./data/midi_files/WjazzD/organized/$name"
-        mv "$f" "./data/midi_files/WjazzD/organized/$name/"
+        mkdir "./data/midi_files/WjazzD_C_Am/organized/$name"
+        mv "$f" "./data/midi_files/WjazzD_C_Am/organized/$name/"
     done
     ```
 
