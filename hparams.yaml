@@ -17,7 +17,7 @@ data_io:
     num_worker: 4
 
 experiment:
-  max_epoch: 31 ## ojo se cambió para prueba rápida antes era 101 
+  max_epoch: 101 ## ojo se cambió para prueba rápida antes era 101 
   # para 5 epochs poner -> 6
   num_sample: 5
   topk: 5
@@ -27,10 +27,10 @@ experiment:
   verbose: True
   num_prime: 16
   attention_map: False
-  rhythm_only: False
+  rhythm_only: True # Fase 1 True... Fase 2 False
   restore_rhythm:
     idx: 1
-    epoch: 30 ## ojo se cambió antes era 100
+    epoch: 90 ## ojo se cambió antes era 100
 
 model:
   num_pitch: 50

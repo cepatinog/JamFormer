@@ -126,8 +126,9 @@ class CMTtrainer(BaseTrainer):
                 logger.info("==========valid %d epoch==========" % epoch)
                 self._epoch(epoch, 'eval', self.config['rhythm_only'])
                 
-                # if epoch > self.loading_epoch and ((epoch < 100 and epoch % 10 == 0) or epoch % 100 == 0):
-                if epoch > self.loading_epoch: # Guardar en cada época para pruebas!!
+                if epoch > self.loading_epoch and ((epoch < 100 and epoch % 10 == 0) or epoch % 100 == 0):
+                # if epoch > self.loading_epoch: # Guardar en cada época para pruebas!!
+                # if epoch % 10 == 0 or epoch == self.config['max_epoch'] - 1:
                     self.save_model(epoch, self.current_step)
                     if not self.config['rhythm_only']:
                         self._sampling(epoch)
