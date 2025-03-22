@@ -3,8 +3,8 @@ import pretty_midi
 from glob import glob
 
 # CONFIGURATION
-MIDI_ROOT = 'ddata/midi_files/original'  # Change this path if you have a different structure
-OUTPUT_DIR = 'data/midi_files/swapped'
+MIDI_ROOT = 'data/midi_files/WjazzD/organized'  # Change this path if you have a different structure
+OUTPUT_DIR = 'data/midi_files/WjazzD/swapped'
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # FUNCTION TO SWAP THE FIRST TWO TRACKS
