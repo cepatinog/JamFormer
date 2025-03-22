@@ -191,7 +191,8 @@ class ChordConditionedMelodyTransformer(nn.Module):
         rhythm_enc_dict = self.rhythm_forward(rhythm_temp, chord_hidden, attention_map, masking=False)
         rhythm_emb = rhythm_enc_dict['output']
 
-        pad_length = self.max_len - prime_pitch.size(1)
+        # pad_length = self.max_len - prime_pitch.size(1) ## Ojoo este es el original
+        pad_length = max(0, self.max_len - prime_rhythm.size(1))  # Evita valores negativos
         pitch_pad = torch.ones([batch_size, pad_length], dtype=torch.long).to(prime_pitch.device)
         pitch_pad *= (self.num_pitch - 1)
         pitch_result = torch.cat([prime_pitch, pitch_pad], dim=1)

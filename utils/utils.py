@@ -6,7 +6,8 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import torch.optim as optim
-from utils import logger
+# from utils import logger
+import logger
 from tensorboardX import SummaryWriter
 
 
@@ -227,14 +228,16 @@ def chord_dict_to_array(chord_dict, max_len):
     next_t = max_len
     for t in sorted(chord_dict.keys(), reverse=True):
         chord_array = np.zeros(12)
-        for note in chord_dict[t] % 12:
+        for note in chord_dict[t] % 12: ## Ojo se cambió!
+        # for note in [n % 12 for n in chord_dict[t]]:  # CORREGIDO
             chord_array[note] = 1
         chord_array = np.tile(chord_array, (next_t - t, 1))
         chord.append(chord_array)
         next_t = t
     if next_t != 0:
         chord.append(np.tile(np.zeros(12), (next_t, 1)))
-    chord = np.concatenate(chord)[::-1]
+    chord = np.concatenate(chord)[::-1] # Ojo se cambió!!
+    # chord = np.concatenate(chord)[::-1].copy()  #  Copia en memoria continua
     return chord
 
 def chord_array_to_dict(chord_array):
@@ -245,3 +248,4 @@ def chord_array_to_dict(chord_array):
             chord_dict[t] = chord_array[t].nonzero()[0]
             chord = chord_array[t]
     return chord_dict
+
