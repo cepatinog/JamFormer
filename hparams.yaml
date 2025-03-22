@@ -1,7 +1,7 @@
 asset_root: 'results'
 
 data_io:
-  path: 'data/pkl_files/instance_pkl_8bars_fpb16_48p_12keys'
+  path: 'data/pkl_files/instance_pkl_8bars_fpb16_48p_ckey'
 
   loader:
     num_workers: 8
@@ -27,7 +27,7 @@ experiment:
   verbose: True
   num_prime: 16
   attention_map: False
-  rhythm_only: True # Fase 1 True... Fase 2 False
+  rhythm_only: False # Fase 1 True... Fase 2 False
   restore_rhythm:
     idx: 1
     epoch: 90 ## ojo se cambió antes era 100

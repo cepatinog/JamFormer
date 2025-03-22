@@ -17,7 +17,7 @@ def detect_windows_ip():
             if line.startswith("default via"):
                 return line.split()[2]  # IP is the 3rd word in line
     except Exception as e:
-        print(f"⚠️ Could not auto-detect Windows IP: {e}")
+        print(f"Could not auto-detect Windows IP: {e}")
     return "127.0.0.1"  # Fallback to localhost
 
 
@@ -30,7 +30,7 @@ def send_melody_to_windows(note_sequence, port=5005):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((host, port))
         s.sendall(message.encode())
-        print("✅ Melody sent to Windows.")
+        print("Melody sent to Windows.")
 
 # Example melody to test
 if __name__ == "__main__":
