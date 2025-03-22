@@ -102,13 +102,8 @@ To train the pitch decoder effectively, we normalized all files to a common key:
 - Files in **minor keys** were transposed to **A minor**
 - After transposition, we adjusted octaves so the melodies stay within the model's expected pitch range (MIDI 48 to 95)
 
-This process was done with a custom script using `music21`. It:
-- Analyzed key signature with `score.analyze('key')`
-- Transposed using the appropriate `Interval`
-- Inspected the melody line (handling both `Note` and `Chord` objects)
-- Applied additional octave shifts to keep notes within bounds
-- Exported the processed file to a dedicated folder for training
-
+This process was done with a custom script using `music21`. 
+Check `transpose_music21.ipynb`
 ---
 
 ### ⚙️ 3. Preprocessing to PKL Format
