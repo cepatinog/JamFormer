@@ -1,5 +1,7 @@
 # 🎵 JamFormer: Chord-Conditioned Melody Generation with CMT Transformer
 
+🎬 **Demo Video**: [Watch on YouTube](https://www.youtube.com/watch?v=fT_El8pyRK8)
+
 This project explores **semi-real-time symbolic music generation** using a **Chord-Conditioned Melody Transformer (CMT)** model. The goal is to generate melodies based on chord progressions, train rhythm and pitch decoders, and send generated melodies to **Ableton Live** via a virtual MIDI port (`loopMIDI`).
 
 ---
