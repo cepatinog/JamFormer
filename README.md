@@ -192,3 +192,72 @@ You can control the creativity and variability of the pitch decoder using the --
 - --topk 3 (default): Moderate variation
 
 - --topk 5+: Higher variation
+
+### 🧠 6. Conditioning the Start of a Melody
+To control the initial musical idea, you can prime the model with a specific note and duration. For example, starting the generated melody with a **quarter note C4**:
+
+- If your model uses `base_midi_note = 48`, then `C4 = MIDI 60` corresponds to pitch token `12`.
+- A quarter note in a 16-frames-per-bar setting equals `[2, 1, 1, 1]` (onset + 3 holds).
+
+Modify the priming section in `generate_and_send.py`:
+
+```python
+prime_rhythm_tokens = [2, 1, 1, 1]  # quarter note
+prime_pitch_tokens = [12, 12, 12, 12]  # C4
+
+prime_rhythm = torch.tensor([prime_rhythm_tokens], dtype=torch.long).to(device)
+prime_pitch = torch.tensor([prime_pitch_tokens], dtype=torch.long).to(device)
+```
+
+This way, the model will generate melodies that continue from that initial C4 note.
+
+---
+
+### 🖧 7. Real-Time Playback via Socket (WSL to Windows)
+WSL lacks native MIDI or GUI support, so we implemented a **client-server architecture** to stream generated melodies to Windows using sockets.
+
+#### 7.1 Architecture
+- **WSL Client (`socket_client.py`)**: Sends a JSON-formatted note sequence to Windows
+- **Windows Server (`midi_server.py`)**: Listens for messages and plays them via `mido` and `loopMIDI`
+
+```bash
+# In WSL
+python generate_and_send.py --checkpoint ... --progression I IV V7 I7
+
+# In Windows (server)
+python midi_server.py
+```
+
+#### 7.2 Buffering Melodies for Manual Trigger
+In the extended version `midi_server_multi.py`, incoming melodies are stored in an internal list of buffers rather than being played immediately.
+
+- Each incoming melody is stored as `buffer[i]`
+- Press `p 0`, `p 1`, etc. in the Windows console to manually trigger playback
+
+```bash
+📥 Stored melody [0] with 56 notes.
+📥 Stored melody [1] with 64 notes.
+```
+
+```bash
+> p 1  # plays melody 1
+> q    # quits the server
+```
+
+---
+
+### ⚡ 8. GPU-Accelerated Inference
+By default, `generate_and_send.py` and `infer_custom_progression.py` detect whether CUDA is available:
+
+```python
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
+chord_tensor = chord_tensor.to(device)
+```
+
+To ensure tensors and model weights are on the same device, all inputs must be explicitly `.to(device)`.
+
+You can now generate faster and scale to longer sequences or batch generation using GPU acceleration.
+
+---
+

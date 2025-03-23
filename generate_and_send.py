@@ -95,9 +95,14 @@ def generate_and_send(prog, checkpoint_path, config, device, topk=3, bpm=120):
     chord_mat = chords.chord_progression_to_matrix(prog, frames_per_chord=frames_per_bar)
 
     chord_tensor = torch.tensor(chord_mat).unsqueeze(0).float().to(device)
-    prime_rhythm = torch.zeros((1, 0), dtype=torch.long).to(device)
-    prime_pitch = torch.zeros((1, 0), dtype=torch.long).to(device)
+    # prime_rhythm = torch.zeros((1, 0), dtype=torch.long).to(device)
+    prime_pitch = torch.zeros((1, 0), dtype=torch.long).to(device) # no meloy
 
+    prime_rhythm_tokens = [2, 1, 1, 1]  # negra
+    #prime_pitch_tokens = [12, 12, 12, 12]   # C4 
+    prime_rhythm = torch.tensor([prime_rhythm_tokens], dtype=torch.long).to(device)
+    #prime_pitch  = torch.tensor([prime_pitch_tokens], dtype=torch.long).to(device)
+    
     with torch.no_grad():
         result = model.sampling(prime_rhythm, prime_pitch, chord_tensor, topk=topk)
 
