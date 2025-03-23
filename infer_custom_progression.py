@@ -12,28 +12,44 @@ import utils.chord_library as chords
 
 
 def load_model(checkpoint_path, config):
-    checkpoint = torch.load(checkpoint_path, map_location="cpu")
+    #checkpoint = torch.load(checkpoint_path, map_location="cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    checkpoint = torch.load(checkpoint_path, map_location=device)
     model = ChordConditionedMelodyTransformer(**config)
     model.load_state_dict(checkpoint["model"])
+    model.to(device) # ojo
     model.eval()
-    return model
+    return model, device
 
 
 def generate(chord_prog, output_path, model, config, topk=3):
     frames_per_bar = config["frame_per_bar"]
     matrix = chords.chord_progression_to_matrix(chord_prog, frames_per_chord=frames_per_bar)
-    chord_tensor = torch.tensor(matrix).unsqueeze(0).float()
+    
+    # chord_tensor = torch.tensor(matrix).unsqueeze(0).float()
+    # prime_rhythm = torch.zeros((1, 0), dtype=torch.long)
+    # prime_pitch = torch.zeros((1, 0), dtype=torch.long)
 
-    prime_rhythm = torch.zeros((1, 0), dtype=torch.long)
-    prime_pitch = torch.zeros((1, 0), dtype=torch.long)
+    chord_tensor = torch.tensor(matrix).unsqueeze(0).float().to(device)
+    prime_rhythm = torch.zeros((1, 0), dtype=torch.long).to(device)
+    prime_pitch = torch.zeros((1, 0), dtype=torch.long).to(device)
 
     with torch.no_grad():
         result = model.sampling(prime_rhythm, prime_pitch, chord_tensor, topk=topk)
 
-    pitch = result["pitch"][0].numpy()
-    rhythm = result["rhythm"][0].numpy()
+    # pitch = result["pitch"][0].numpy()
+    # rhythm = result["rhythm"][0].numpy()
 
-    instruments = pitch_to_midi(pitch, chord_tensor.squeeze(0).numpy(), frame_per_bar=frames_per_bar, save_path=output_path)
+    # instruments = pitch_to_midi(pitch, chord_tensor.squeeze(0).numpy(), frame_per_bar=frames_per_bar, save_path=output_path)
+    # print(f"✅ Saved: {output_path}")
+
+    pitch = result["pitch"][0].cpu().numpy()
+    rhythm = result["rhythm"][0].cpu().numpy()
+
+    instruments = pitch_to_midi(
+        pitch, chord_tensor.squeeze(0).cpu().numpy(), 
+        frame_per_bar=frames_per_bar, save_path=output_path
+    )
     print(f"✅ Saved: {output_path}")
 
 
@@ -63,5 +79,12 @@ if __name__ == "__main__":
         "attention_dropout": 0.2
     }
 
-    model = load_model(args.checkpoint, model_config)
-    generate(args.progression, args.output, model, model_config, topk=args.topk)
+    model, device = load_model(args.checkpoint, model_config)
+    generate(
+    chord_prog=args.progression,
+    output_path=args.output,
+    model=model,
+    config=model_config,
+    topk=args.topk
+)
+
