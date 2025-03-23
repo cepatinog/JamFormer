@@ -157,3 +157,38 @@ python src/run.py \
 
 ---
 
+### 🎼 5. Melody Generation via Inference
+After training the model, we can generate new 8-bar melodies conditioned on a custom chord progression using the trained Chord-Conditioned Melody Transformer (CMT).
+
+#### 5.1 Generating a Melody from Chords
+We use the script infer_custom_progression.py to generate a melody based on a chord progression expressed in Roman numerals.
+
+```bash
+python infer_custom_progression.py \
+  --checkpoint results/idx002/model/checkpoint_100.pth.tar \
+  --output generated.mid \
+  --progression I vi ii7 V7 I V7 viiø7 I7 \
+  --topk 3
+```
+
+#### 5.2 How It Works
+The model loads the specified checkpoint (must contain both rhythm and pitch decoders trained).
+The chord progression (e.g., I vi ii7 V7) is converted to a 12D chord vector matrix using `utils/chord_library.py.`
+
+The model starts generation from scratch using empty prime tokens.
+The melody is generated auto-regressively, predicting rhythm first and then pitch.
+
+A `.mid` file is created with:
+
+- Track 0: The generated monophonic melody
+
+- Track 1: Chord blocks matching the progression
+
+#### 5.3 Top-k Sampling
+You can control the creativity and variability of the pitch decoder using the --topk flag.
+
+- --topk 1: Greedy (argmax) decoding
+
+- --topk 3 (default): Moderate variation
+
+- --topk 5+: Higher variation
