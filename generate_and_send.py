@@ -32,12 +32,15 @@ def send_melody_to_windows(note_sequence, port=5005):
         s.sendall(message.encode())
         print("🎶 Melody sent to Windows!")
 
+
 def load_model(checkpoint_path, config):
-    checkpoint = torch.load(checkpoint_path, map_location="cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    checkpoint = torch.load(checkpoint_path, map_location=device)
     model = ChordConditionedMelodyTransformer(**config)
     model.load_state_dict(checkpoint["model"])
+    model.to(device)
     model.eval()
-    return model
+    return model, device
 
 def convert_to_note_sequence(pitch, rhythm, frame_per_bar=16, bpm=120, base_midi_note=60, pitch_hold_token=48, pitch_rest_token=49):
     frame_per_second = (frame_per_bar / 4) * (bpm / 60)
@@ -87,20 +90,19 @@ def convert_to_note_sequence(pitch, rhythm, frame_per_bar=16, bpm=120, base_midi
     return sequence
 
 
-def generate_and_send(prog, checkpoint_path, config, topk=3, bpm=120):
+def generate_and_send(prog, checkpoint_path, config, device, topk=3, bpm=120):
     frames_per_bar = config["frame_per_bar"]
     chord_mat = chords.chord_progression_to_matrix(prog, frames_per_chord=frames_per_bar)
-    chord_tensor = torch.tensor(chord_mat).unsqueeze(0).float()
-    prime_rhythm = torch.zeros((1, 0), dtype=torch.long)
-    prime_pitch = torch.zeros((1, 0), dtype=torch.long)
 
-    model = load_model(checkpoint_path, config)
+    chord_tensor = torch.tensor(chord_mat).unsqueeze(0).float().to(device)
+    prime_rhythm = torch.zeros((1, 0), dtype=torch.long).to(device)
+    prime_pitch = torch.zeros((1, 0), dtype=torch.long).to(device)
 
     with torch.no_grad():
         result = model.sampling(prime_rhythm, prime_pitch, chord_tensor, topk=topk)
 
-    pitch = result["pitch"][0].numpy()
-    rhythm = result["rhythm"][0].numpy()
+    pitch = result["pitch"][0].cpu().numpy()
+    rhythm = result["rhythm"][0].cpu().numpy()
 
     note_sequence = convert_to_note_sequence(pitch, rhythm, frame_per_bar=frames_per_bar, bpm=bpm)
     send_melody_to_windows(note_sequence)
@@ -131,4 +133,14 @@ if __name__ == "__main__":
         "attention_dropout": 0.2
     }
 
-    generate_and_send(args.progression, args.checkpoint, model_config, args.topk, args.bpm)
+    #generate_and_send(args.progression, args.checkpoint, model_config, args.topk, args.bpm)
+
+    model, device = load_model(args.checkpoint, model_config)
+    generate_and_send(
+        prog=args.progression,
+        checkpoint_path=args.checkpoint,
+        config=model_config,
+        device=device,
+        topk=args.topk,
+        bpm=args.bpm
+    )
