@@ -116,8 +116,10 @@ class ChordConditionedMelodyTransformer(nn.Module):
         h0, c0 = self.init_lstm_hidden(size[0])
         self.chord_lstm.flatten_parameters()
         chord_out, _ = self.chord_lstm(chord_emb, (h0.to(chord.device), c0.to(chord.device)))
-        chord_for = chord_out[:, 1:, :self.chord_hidden]
-        chord_back = chord_out[:, 1:, self.chord_hidden:]
+        # chord_for = chord_out[:, 1:, :self.chord_hidden] # ojo!! original
+        # chord_back = chord_out[:, 1:, self.chord_hidden:]
+        chord_for = chord_out[:, :, :self.chord_hidden] # Se cambió! para inferencia
+        chord_back = chord_out[:, :, self.chord_hidden:]
         return chord_for, chord_back
     
     def rhythm_forward(self, rhythm, chord_hidden, attention_map=False, masking=True):

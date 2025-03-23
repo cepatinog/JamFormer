@@ -6,8 +6,8 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import torch.optim as optim
-from utils import logger
-# import logger
+# from utils import logger
+import logger
 from tensorboardX import SummaryWriter
 
 
